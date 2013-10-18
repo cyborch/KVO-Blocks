@@ -17,10 +17,10 @@
             context:(void *)context
           withBlock:(KVOBlock)block
 {
-    NSMutableDictionary *blocks = objc_getAssociatedObject(self, (__bridge const void *)(keyPath));
+    NSMutableDictionary *blocks = objc_getAssociatedObject(self, (void *)[keyPath hash]);
     if (!blocks) {
         blocks = [[NSMutableDictionary alloc] init];
-        objc_setAssociatedObject(self, (__bridge const void *)(keyPath), blocks, OBJC_ASSOCIATION_RETAIN);
+        objc_setAssociatedObject(self, (void *)[keyPath hash], blocks, OBJC_ASSOCIATION_RETAIN);
         [self addObserver:self forKeyPath:keyPath options:options context:context];
     }
     blocks[@([observer hash])] = [block copy];
@@ -31,7 +31,7 @@
                         change:(NSDictionary *)change
                        context:(void *)context
 {
-    NSMutableDictionary *blocks = objc_getAssociatedObject(self, (__bridge const void *)(keyPath));
+    NSMutableDictionary *blocks = objc_getAssociatedObject(self, (void *)[keyPath hash]);
     for (KVOBlock block in [blocks allValues]) {
         block(change, context);
     }
@@ -40,10 +40,10 @@
 - (void)removeBlockObserver:(NSObject *)observer
                  forKeyPath:(NSString *)keyPath
 {
-    NSMutableDictionary *blocks = objc_getAssociatedObject(self, (__bridge const void *)(keyPath));
+    NSMutableDictionary *blocks = objc_getAssociatedObject(self, (void *)[keyPath hash]);
     [blocks removeObjectForKey: @([observer hash])];
     if (blocks && [blocks allKeys].count == 0) {
-        objc_setAssociatedObject(self, (__bridge const void *)(keyPath), nil, OBJC_ASSOCIATION_COPY);
+        objc_setAssociatedObject(self, (void *)[keyPath hash], nil, OBJC_ASSOCIATION_COPY);
         [self removeObserver:self forKeyPath:keyPath];
     }
 }
