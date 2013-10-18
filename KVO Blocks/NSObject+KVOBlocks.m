@@ -23,6 +23,7 @@
         objc_setAssociatedObject(self, (void *)[keyPath hash], blocks, OBJC_ASSOCIATION_RETAIN);
         [self addObserver:self forKeyPath:keyPath options:options context:context];
     }
+    NSAssert(!blocks[@([observer hash])], @"this observer already added to this keypath");
     blocks[@([observer hash])] = [block copy];
 }
 
@@ -41,6 +42,7 @@
                  forKeyPath:(NSString *)keyPath
 {
     NSMutableDictionary *blocks = objc_getAssociatedObject(self, (void *)[keyPath hash]);
+    NSAssert(blocks[@([observer hash])], @"this observer not added to this keypath");
     [blocks removeObjectForKey: @([observer hash])];
     if (blocks && [blocks allKeys].count == 0) {
         objc_setAssociatedObject(self, (void *)[keyPath hash], nil, OBJC_ASSOCIATION_COPY);
